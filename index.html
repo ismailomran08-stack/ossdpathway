@@ -330,9 +330,9 @@ input, select, textarea { font-family: inherit; }
   top: 100%;
   margin-top: 8px;
   background: var(--white);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   box-shadow: var(--shadow-xl);
-  padding: 12px 16px;
+  padding: 16px;
   min-width: 200px;
   border: 1px solid var(--border-light);
 }
@@ -341,30 +341,55 @@ input, select, textarea { font-family: inherit; }
   display: block;
 }
 
-.goog-te-gadget {
-  font-size: 0 !important;
-  line-height: 0 !important;
+.translate-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border-light);
 }
 
-.goog-te-gadget .goog-te-combo {
-  font-family: 'Inter', sans-serif !important;
-  font-size: 14px !important;
-  font-weight: 500 !important;
-  color: var(--blue) !important;
-  background: var(--light-grey) !important;
-  border: 1px solid var(--border-light) !important;
-  border-radius: var(--radius-sm) !important;
-  padding: 10px 14px !important;
-  width: 100% !important;
-  cursor: pointer !important;
-  outline: none !important;
+.translate-langs {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
-.goog-te-gadget > span,
-.goog-te-gadget > a,
-.goog-logo-link { display: none !important; }
+.translate-lang {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-dark);
+  transition: all var(--transition);
+  text-align: left;
+}
+
+.translate-lang:hover {
+  background: var(--light-grey);
+}
+
+.translate-lang.active {
+  background: rgba(130,191,69,0.1);
+  color: var(--green-dark);
+  font-weight: 600;
+}
+
+.translate-flag {
+  font-size: 18px;
+  line-height: 1;
+}
+
+/* Hide Google Translate UI */
 .goog-te-banner-frame { display: none !important; }
 body { top: 0 !important; }
+.goog-te-gadget { font-size: 0 !important; }
 
 @media (max-width: 768px) {
   .translate-float { bottom: 50%; left: 12px; }
@@ -2971,22 +2996,56 @@ select.form-control {
     <span>Language</span>
   </button>
   <div class="translate-dropdown" id="translate-dropdown">
-    <div id="google_translate_element"></div>
+    <div class="translate-title">Select Language</div>
+    <div class="translate-langs">
+      <button class="translate-lang active" data-lang="en"><span class="translate-flag">🇬🇧</span>English</button>
+      <button class="translate-lang" data-lang="fr"><span class="translate-flag">🇫🇷</span>Français</button>
+      <button class="translate-lang" data-lang="ar"><span class="translate-flag">🇸🇦</span>العربية</button>
+      <button class="translate-lang" data-lang="sv"><span class="translate-flag">🇸🇪</span>Svenska</button>
+      <button class="translate-lang" data-lang="zh-CN"><span class="translate-flag">🇨🇳</span>中文</button>
+      <button class="translate-lang" data-lang="sw"><span class="translate-flag">🇰🇪</span>Kiswahili</button>
+      <button class="translate-lang" data-lang="ha"><span class="translate-flag">🇳🇬</span>Hausa</button>
+      <button class="translate-lang" data-lang="yo"><span class="translate-flag">🇳🇬</span>Yoruba</button>
+      <button class="translate-lang" data-lang="am"><span class="translate-flag">🇪🇹</span>አማርኛ</button>
+      <button class="translate-lang" data-lang="pt"><span class="translate-flag">🇧🇷</span>Português</button>
+    </div>
   </div>
 </div>
 
+<!-- Hidden Google Translate element -->
+<div id="google_translate_element" style="display:none;"></div>
+
 <script>
 (function() {
-  var translateToggle = document.getElementById('translate-toggle');
-  var translateDropdown = document.getElementById('translate-dropdown');
-  translateToggle.addEventListener('click', function(e) {
+  var toggle = document.getElementById('translate-toggle');
+  var dropdown = document.getElementById('translate-dropdown');
+  var langBtns = document.querySelectorAll('.translate-lang');
+
+  toggle.addEventListener('click', function(e) {
     e.stopPropagation();
-    translateDropdown.classList.toggle('open');
+    dropdown.classList.toggle('open');
   });
+
   document.addEventListener('click', function(e) {
     if (!e.target.closest('.translate-float')) {
-      translateDropdown.classList.remove('open');
+      dropdown.classList.remove('open');
     }
+  });
+
+  langBtns.forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var lang = this.getAttribute('data-lang');
+      langBtns.forEach(function(b) { b.classList.remove('active'); });
+      this.classList.add('active');
+
+      // Trigger Google Translate
+      var select = document.querySelector('#google_translate_element select');
+      if (select) {
+        select.value = lang;
+        select.dispatchEvent(new Event('change'));
+      }
+      dropdown.classList.remove('open');
+    });
   });
 })();
 </script>
