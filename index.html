@@ -2914,7 +2914,8 @@ select.form-control {
       fetch('https://services.leadconnectorhq.com/hooks/mgJeQaJfnKtSALc72lt2/webhook-trigger/3cfa94a8-5e19-4275-9ee2-86c9dcee2d99', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(ghlData)
+        body: JSON.stringify(ghlData),
+        mode: 'no-cors'
       }).catch(function(err) { console.error('GHL error:', err); });
 
       // Send to Web3Forms (email notification)
