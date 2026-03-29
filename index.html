@@ -2904,19 +2904,22 @@ select.form-control {
       var formData = new FormData(form);
 
       // Send to GHL webhook (auto-reply + contact creation)
-      var ghlData = {
-        fullname: formData.get('fullname'),
-        email: formData.get('email'),
-        country: formData.get('country'),
-        phone: formData.get('phone') || '',
-        role: formData.get('role')
-      };
-      fetch('https://services.leadconnectorhq.com/hooks/mgJeQaJfnKtSALc72lt2/webhook-trigger/3cfa94a8-5e19-4275-9ee2-86c9dcee2d99', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(ghlData),
-        mode: 'no-cors'
-      }).catch(function(err) { console.error('GHL error:', err); });
+      var ghlForm = new FormData();
+      ghlForm.append('fullname', formData.get('fullname'));
+      ghlForm.append('email', formData.get('email'));
+      ghlForm.append('country', formData.get('country'));
+      ghlForm.append('phone', formData.get('phone') || '');
+      ghlForm.append('role', formData.get('role'));
+      navigator.sendBeacon(
+        'https://services.leadconnectorhq.com/hooks/mgJeQaJfnKtSALc72lt2/webhook-trigger/3cfa94a8-5e19-4275-9ee2-86c9dcee2d99',
+        new Blob([JSON.stringify({
+          fullname: formData.get('fullname'),
+          email: formData.get('email'),
+          country: formData.get('country'),
+          phone: formData.get('phone') || '',
+          role: formData.get('role')
+        })], { type: 'application/json' })
+      );
 
       // Send to Web3Forms (email notification)
       fetch('https://api.web3forms.com/submit', {
