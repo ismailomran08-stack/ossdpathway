@@ -2903,23 +2903,34 @@ select.form-control {
 
       var formData = new FormData(form);
 
-      // Send to GHL webhook (auto-reply + contact creation)
-      var ghlForm = new FormData();
-      ghlForm.append('fullname', formData.get('fullname'));
-      ghlForm.append('email', formData.get('email'));
-      ghlForm.append('country', formData.get('country'));
-      ghlForm.append('phone', formData.get('phone') || '');
-      ghlForm.append('role', formData.get('role'));
-      navigator.sendBeacon(
-        'https://services.leadconnectorhq.com/hooks/mgJeQaJfnKtSALc72lt2/webhook-trigger/3cfa94a8-5e19-4275-9ee2-86c9dcee2d99',
-        new Blob([JSON.stringify({
-          fullname: formData.get('fullname'),
-          email: formData.get('email'),
-          country: formData.get('country'),
-          phone: formData.get('phone') || '',
-          role: formData.get('role')
-        })], { type: 'application/json' })
-      );
+      // Send to GHL webhook via hidden iframe form (bypasses CORS)
+      var ghlIframe = document.createElement('iframe');
+      ghlIframe.name = 'ghl_iframe';
+      ghlIframe.style.display = 'none';
+      document.body.appendChild(ghlIframe);
+
+      var ghlForm = document.createElement('form');
+      ghlForm.method = 'POST';
+      ghlForm.action = 'https://services.leadconnectorhq.com/hooks/mgJeQaJfnKtSALc72lt2/webhook-trigger/3cfa94a8-5e19-4275-9ee2-86c9dcee2d99';
+      ghlForm.target = 'ghl_iframe';
+
+      var fields = { fullname: formData.get('fullname'), email: formData.get('email'), country: formData.get('country'), phone: formData.get('phone') || '', role: formData.get('role') };
+      for (var key in fields) {
+        var input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = key;
+        input.value = fields[key];
+        ghlForm.appendChild(input);
+      }
+
+      document.body.appendChild(ghlForm);
+      ghlForm.submit();
+
+      // Clean up after submission
+      setTimeout(function() {
+        document.body.removeChild(ghlForm);
+        document.body.removeChild(ghlIframe);
+      }, 5000);
 
       // Send to Web3Forms (email notification)
       fetch('https://api.web3forms.com/submit', {
