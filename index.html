@@ -141,8 +141,8 @@ input, select, textarea { font-family: inherit; }
 }
 
 .header-logo img {
-  width: 120px;
-  height: 120px;
+  width: 52px;
+  height: 52px;
   border-radius: 50%;
   object-fit: cover;
 }
@@ -294,12 +294,48 @@ input, select, textarea { font-family: inherit; }
 .hamburger.active span:nth-child(2) { opacity: 0; }
 .hamburger.active span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
 
-/* Google Translate */
-#google_translate_element {
+/* Google Translate — Floating Globe */
+.translate-float {
+  position: fixed;
+  bottom: 24px;
+  left: 24px;
+  z-index: 997;
+}
+
+.translate-toggle {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--blue);
+  color: var(--white);
   display: flex;
   align-items: center;
-  flex-shrink: 0;
-  margin-left: 8px;
+  justify-content: center;
+  box-shadow: var(--shadow-lg);
+  transition: all var(--transition);
+  border: 2px solid rgba(255,255,255,0.15);
+}
+
+.translate-toggle:hover {
+  background: var(--green);
+  transform: scale(1.08);
+}
+
+.translate-dropdown {
+  display: none;
+  position: absolute;
+  bottom: 56px;
+  left: 0;
+  background: var(--white);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-xl);
+  padding: 12px 16px;
+  min-width: 180px;
+  border: 1px solid var(--border-light);
+}
+
+.translate-dropdown.open {
+  display: block;
 }
 
 .goog-te-gadget {
@@ -309,25 +345,16 @@ input, select, textarea { font-family: inherit; }
 
 .goog-te-gadget .goog-te-combo {
   font-family: 'Inter', sans-serif !important;
-  font-size: 13px !important;
+  font-size: 14px !important;
   font-weight: 500 !important;
   color: var(--blue) !important;
   background: var(--light-grey) !important;
   border: 1px solid var(--border-light) !important;
-  border-radius: var(--radius-pill) !important;
-  padding: 7px 14px 7px 32px !important;
+  border-radius: var(--radius-sm) !important;
+  padding: 10px 14px !important;
+  width: 100% !important;
   cursor: pointer !important;
   outline: none !important;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2300275b' stroke-width='2'%3E%3Cpath d='M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zM2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10A15.3 15.3 0 0 1 12 2z'/%3E%3C/svg%3E") !important;
-  background-repeat: no-repeat !important;
-  background-position: 10px center !important;
-  background-size: 14px !important;
-  -webkit-appearance: none !important;
-  appearance: none !important;
-}
-
-.goog-te-gadget .goog-te-combo:hover {
-  border-color: var(--green) !important;
 }
 
 .goog-te-gadget > span,
@@ -336,13 +363,8 @@ input, select, textarea { font-family: inherit; }
 .goog-te-banner-frame { display: none !important; }
 body { top: 0 !important; }
 
-@media (max-width: 1024px) {
-  #google_translate_element {
-    position: fixed;
-    bottom: 80px;
-    right: 16px;
-    z-index: 998;
-  }
+@media (max-width: 768px) {
+  .translate-float { bottom: 80px; left: 16px; }
 }
 
 /* Mobile Nav */
@@ -2092,7 +2114,6 @@ select.form-control {
       <a href="#for-schools" class="nav-link">For Schools</a>
       <a href="#adult-education" class="nav-link">Adults</a>
       <a href="#apply" class="btn-primary">Start My Application</a>
-      <div id="google_translate_element"></div>
     </nav>
     <button class="hamburger" id="hamburger" aria-label="Toggle menu">
       <span></span>
@@ -2877,6 +2898,20 @@ select.form-control {
     }
   });
 
+  // ===== Translate toggle =====
+  var translateToggle = document.getElementById('translate-toggle');
+  var translateDropdown = document.getElementById('translate-dropdown');
+  if (translateToggle && translateDropdown) {
+    translateToggle.addEventListener('click', function() {
+      translateDropdown.classList.toggle('open');
+    });
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('.translate-float')) {
+        translateDropdown.classList.remove('open');
+      }
+    });
+  }
+
   // ===== Mobile CTA visibility =====
   var mobileCta = document.getElementById('mobile-cta');
   var applySection = document.getElementById('apply');
@@ -2937,6 +2972,16 @@ select.form-control {
 
 })();
 </script>
+
+<!-- ========== FLOATING TRANSLATE ========== -->
+<div class="translate-float" id="translate-float">
+  <button class="translate-toggle" id="translate-toggle" aria-label="Translate page">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10A15.3 15.3 0 0 1 12 2z"/></svg>
+  </button>
+  <div class="translate-dropdown" id="translate-dropdown">
+    <div id="google_translate_element"></div>
+  </div>
+</div>
 
 <script>
 function googleTranslateElementInit() {
