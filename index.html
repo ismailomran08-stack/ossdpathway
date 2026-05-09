@@ -3029,6 +3029,10 @@ select.form-control {
   var formContainer = document.getElementById('form-container');
   var formSuccess = document.getElementById('form-success');
 
+  // Partner webhook — set to a Slack incoming webhook URL or any JSON API
+  // endpoint to receive a copy of every lead. Leave empty to disable.
+  var PARTNER_WEBHOOK_URL = '';
+
   function validateEmail(email) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   }
@@ -3113,6 +3117,32 @@ select.form-control {
         document.body.removeChild(ghlForm);
         document.body.removeChild(ghlIframe);
       }, 5000);
+
+      // Send to partner webhook (Slack-compatible JSON, also works for any JSON API)
+      if (PARTNER_WEBHOOK_URL) {
+        var lead = {
+          fullname: fields.fullname,
+          email: fields.email,
+          country: fields.country,
+          phone: fields.phone,
+          role: fields.role,
+          source: 'ossdpathway.ca',
+          submitted_at: new Date().toISOString()
+        };
+        var partnerPayload = Object.assign({
+          text: 'New lead — ' + lead.fullname + ' (' + lead.email + ', ' + lead.country + ', ' + lead.role + ')'
+        }, lead);
+        try {
+          fetch(PARTNER_WEBHOOK_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(partnerPayload)
+          }).catch(function(err) { console.error('Partner webhook error:', err); });
+        } catch (err) {
+          console.error('Partner webhook error:', err);
+        }
+      }
 
       // Send to Web3Forms (email notification)
       fetch('https://api.web3forms.com/submit', {
